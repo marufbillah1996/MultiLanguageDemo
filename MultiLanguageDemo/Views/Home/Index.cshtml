@@ -1,0 +1,746 @@
+﻿@model List<MultiLanguageDemo.Models.ArticleDto>
+@{
+    ViewData["Title"] = "Home";
+    var currentCulture = ViewBag.CurrentCulture;
+    var isRtl = ViewBag.IsRtl ?? false;
+    var categories = ViewBag.Categories as List<MultiLanguageDemo.Models.CategoryDto> ?? new List<MultiLanguageDemo.Models.CategoryDto>();
+}
+
+<style>
+    .hero-banner {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+        border-radius: 30px;
+        padding: 4rem 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        backdrop-filter: blur(20px);
+        border: 3px solid rgba(102, 126, 234, 0.3);
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            z-index: 0;
+        }
+
+        .hero-banner > * {
+            position: relative;
+            z-index: 1;
+        }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+        text-shadow: 0 0 1px rgba(102, 126, 234, 0.1);
+    }
+
+    .hero-subtitle {
+        font-size: 1.4rem;
+        color: #475569;
+        font-weight: 600;
+        max-width: 700px;
+        margin: 0 auto;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-header {
+        margin-bottom: 2.5rem;
+        text-align: center;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 1rem;
+    }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+        }
+
+    .category-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.8rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        border: 2px solid transparent;
+        text-decoration: none;
+        display: block;
+    }
+
+        .category-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+    .category-icon {
+        width: 65px;
+        height: 65px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .card-article {
+        background: white;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 3px solid transparent;
+    }
+
+        .card-article:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 70px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+    .article-image-wrapper {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .article-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.7s ease;
+        filter: brightness(0.95);
+    }
+
+    .card-article:hover .article-image {
+        transform: scale(1.2) rotate(3deg);
+        filter: brightness(1.05);
+    }
+
+    .article-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        padding: 0.5rem 1.2rem;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        z-index: 10;
+    }
+
+    .article-category-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #667eea;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .article-body {
+        padding: 2rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .article-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .article-summary {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.7;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .article-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1.5rem;
+        border-top: 2px solid #f1f5f9;
+        margin-top: auto;
+    }
+
+    .article-author {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .author-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+    }
+
+    .article-stats {
+        display: flex;
+        gap: 1.2rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .btn-read-more {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.4s ease;
+        box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        margin-top: 1rem;
+    }
+
+        .btn-read-more:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(102, 126, 234, 0.5);
+            color: white;
+        }
+
+    .stats-bar {
+        background: white;
+        border-radius: 25px;
+        padding: 2rem;
+        margin: 3rem 0;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    @@media (max-width: 768px) {
+        .hero-title
+
+    {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .article-image-wrapper {
+        height: 200px;
+    }
+
+    }
+</style>
+
+<!-- Hero Banner -->
+<div class="hero-banner">
+    <h1 class="hero-title">
+        <i class="bi bi-newspaper"></i>
+        @if (currentCulture == "bn-BD")
+        {
+            <span>বিশ্বব্যাপী সংবাদ</span>
+        }
+        else if (currentCulture == "fr-FR")
+        {
+            <span>Actualités Mondiales</span>
+        }
+        else if (currentCulture == "ar-SA")
+        {
+            <span>الأخبار العالمية</span>
+        }
+        else if (currentCulture == "zh-CN")
+        {
+            <span>全球新闻</span>
+        }
+        else
+        {
+            <span>Global News & Articles</span>
+        }
+    </h1>
+    <p class="hero-subtitle">
+        @if (currentCulture == "bn-BD")
+        {
+            <span>আপনার ভাষায় বিশ্বের সেরা খবর এবং নিবন্ধ পড়ুন</span>
+        }
+        else if (currentCulture == "fr-FR")
+        {
+            <span>Lisez les meilleures nouvelles et articles du monde dans votre langue</span>
+        }
+        else if (currentCulture == "ar-SA")
+        {
+            <span>اقرأ أفضل الأخبار والمقالات من جميع أنحاء العالم بلغتك</span>
+        }
+        else if (currentCulture == "zh-CN")
+        {
+            <span>用您的语言阅读全球最佳新闻和文章</span>
+        }
+        else
+        {
+            <span>Read the best news and articles from around the world in your language</span>
+        }
+    </p>
+</div>
+
+<!-- Categories Section -->
+@if (categories.Any())
+{
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+            @if (currentCulture == "ar-SA")
+            {
+                <span>الفئات</span>
+            }
+            else if (currentCulture == "zh-CN")
+            {
+                <span>分类</span>
+            }
+            else if (currentCulture == "bn-BD")
+            {
+                <span>বিভাগসমূহ</span>
+            }
+            else if (currentCulture == "fr-FR")
+            {
+                <span>Catégories</span>
+            }
+            else
+            {
+                <span>Categories</span>
+            }
+        </h2>
+    </div>
+
+    <div class="row g-3 mb-5">
+        @foreach (var category in categories.Take(6))
+        {
+            var gradients = new[] {
+        "linear-gradient(135deg, #667eea, #764ba2)",
+        "linear-gradient(135deg, #f093fb, #f5576c)",
+        "linear-gradient(135deg, #4facfe, #00f2fe)",
+        "linear-gradient(135deg, #43e97b, #38f9d7)",
+        "linear-gradient(135deg, #fa709a, #fee140)",
+        "linear-gradient(135deg, #30cfd0, #330867)"
+        };
+            var gradient = gradients[category.Id % gradients.Length];
+
+            <div class="col-md-4 col-sm-6">
+                <a href="/@currentCulture/category/@category.Id" class="category-card">
+                    <div class="category-icon" style="background: @gradient;">
+                        <i class="@category.IconClass"></i>
+                    </div>
+                    <h5 style="font-weight: 800; margin-bottom: 0.5rem;">@category.Name</h5>
+                    <p style="color: var(--text-secondary); margin-bottom: 0.8rem; font-size: 0.95rem;">
+                        @category.Description
+                    </p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem;">
+                        <span style="color: #667eea; font-weight: 700;">
+                            <i class="bi bi-file-text"></i> @category.ArticleCount
+                            @if (currentCulture == "bn-BD")
+                            {
+                                <span>নিবন্ধ</span>
+                            }
+                            else if (currentCulture == "fr-FR")
+                            {
+
+                                <span>articles</span>
+                            }
+                            else if (currentCulture == "ar-SA")
+                            {
+
+                                <span>مقالات</span>
+                            }
+                            else if (currentCulture == "zh-CN")
+                            {
+
+                                <span>文章</span>
+                            }
+                            else
+                            {
+
+                                <span>articles</span>
+                            }
+                        </span>
+                        <i class="bi bi-arrow-right" style="color: #667eea; font-size: 1.2rem;"></i>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+}
+
+<!-- Latest Articles -->
+<div class="section-header mt-5">
+    <h2 class="section-title">
+        <i class="bi bi-fire"></i>
+        @if (currentCulture == "bn-BD")
+        {
+            <span>সর্বশেষ নিবন্ধ</span>
+        }
+        else if (currentCulture == "fr-FR")
+        {
+
+            <span>Derniers Articles</span>
+        }
+        else if (currentCulture == "ar-SA")
+        {
+
+            <span>أحدث المقالات</span>
+        }
+        else if (currentCulture == "zh-CN")
+        {
+
+            <span>最新文章</span>
+        }
+        else
+        {
+
+            <span>Latest Articles</span>
+        }
+    </h2>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row g-4">
+        @foreach (var article in Model)
+        {
+            <div class="col-lg-4 col-md-6">
+                <div class="card-article">
+                    <div class="article-image-wrapper">
+                        @if (!string.IsNullOrEmpty(article.ImageUrl))
+                        {
+                            <img src="@article.ImageUrl" alt="@article.Title" class="article-image">
+                        }
+                        else
+                        {
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-image" style="font-size: 4rem; color: white; opacity: 0.5;"></i>
+                            </div>
+                        }
+
+                        @if (article.IsFeatured)
+                        {
+                            <div class="article-badge">
+                                <i class="bi bi-star-fill"></i> FEATURED
+                            </div>
+                        }
+
+                        <div class="article-category-badge">
+                            <i class="@article.CategoryIcon"></i>
+                            <span>@article.CategoryName</span>
+                        </div>
+                    </div>
+
+                    <div class="article-body">
+                        <h3 class="article-title">@article.Title</h3>
+
+                        @if (!string.IsNullOrEmpty(article.Summary))
+                        {
+                            <p class="article-summary">@article.Summary</p>
+                        }
+                        else if (!string.IsNullOrEmpty(article.Subtitle))
+                        {
+                            <p class="article-summary">@article.Subtitle</p>
+                        }
+
+                        <div class="article-meta">
+                            <div class="article-author">
+                                <div class="author-avatar">
+                                    @article.AuthorName.Substring(0, 1).ToUpper()
+                                </div>
+                                <span>@article.AuthorName</span>
+                            </div>
+
+                            <div class="article-stats">
+                                <span title="Reading time">
+                                    <i class="bi bi-clock"></i> @article.ReadingTime min
+                                </span>
+                                <span title="Views">
+                                    <i class="bi bi-eye"></i> @article.ViewCount
+                                </span>
+                            </div>
+                        </div>
+
+                        <a href="/@currentCulture/article/@article.Slug" class="btn-read-more">
+                            @if (currentCulture == "bn-BD")
+                            {
+                                <span>আরও পড়ুন</span>
+                            }
+                            else if (currentCulture == "fr-FR")
+                            {
+
+                                <span>Lire Plus</span>
+                            }
+                            else if (currentCulture == "ar-SA")
+                            {
+
+                                <span>اقرأ المزيد</span>
+                            }
+                            else if (currentCulture == "zh-CN")
+                            {
+
+                                <span>阅读更多</span>
+                            }
+                            else
+                            {
+
+                                <span>Read More</span>
+                            }
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center" style="padding: 4rem 2rem; background: white; border-radius: 25px;">
+        <i class="bi bi-inbox" style="font-size: 5rem; color: var(--text-secondary); opacity: 0.5;"></i>
+        <h3 style="margin-top: 1.5rem; color: var(--text-secondary);">
+            @if (currentCulture == "bn-BD")
+            {
+                <span>কোন নিবন্ধ নেই</span>
+            }
+            else if (currentCulture == "fr-FR")
+            {
+
+                <span>Aucun article</span>
+            }
+            else if (currentCulture == "ar-SA")
+            {
+
+                <span>لا توجد مقالات</span>
+            }
+            else if (currentCulture == "zh-CN")
+            {
+
+                <span>没有文章</span>
+            }
+            else
+            {
+
+                <span>No Articles Available</span>
+            }
+        </h3>
+    </div>
+}
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="row">
+        <div class="col-md-3 col-6">
+            <div class="stat-item">
+                <div class="stat-number">@(Model?.Count ?? 0)+</div>
+                <div class="stat-label">
+                    @if (currentCulture == "bn-BD")
+                    {
+                        <span>নিবন্ধ</span>
+                    }
+                    else if (currentCulture == "fr-FR")
+                    {
+
+                        <span>Articles</span>
+                    }
+                    else if (currentCulture == "ar-SA")
+                    {
+
+                        <span>مقالات</span>
+                    }
+                    else if (currentCulture == "zh-CN")
+                    {
+
+                        <span>文章</span>
+                    }
+                    else
+                    {
+
+                        <span>Articles</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-item">
+                <div class="stat-number">5</div>
+                <div class="stat-label">
+                    @if (currentCulture == "bn-BD")
+                    {
+                        <span>ভাষা</span>
+                    }
+                    else if (currentCulture == "fr-FR")
+                    {
+
+                        <span>Langues</span>
+                    }
+                    else if (currentCulture == "ar-SA")
+                    {
+
+                        <span>لغات</span>
+                    }
+                    else if (currentCulture == "zh-CN")
+                    {
+
+                        <span>语言</span>
+                    }
+                    else
+                    {
+
+                        <span>Languages</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-item">
+                <div class="stat-number">@(categories?.Count ?? 0)</div>
+                <div class="stat-label">
+                    @if (currentCulture == "bn-BD")
+                    {
+                        <span>বিভাগ</span>
+                    }
+                    else if (currentCulture == "fr-FR")
+                    {
+
+                        <span>Catégories</span>
+                    }
+                    else if (currentCulture == "ar-SA")
+                    {
+
+                        <span>فئات</span>
+                    }
+                    else if (currentCulture == "zh-CN")
+                    {
+
+                        <span>分类</span>
+                    }
+                    else
+                    {
+
+                        <span>Categories</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-item">
+                <div class="stat-number">@(Model?.Sum(a => a.ViewCount) ?? 0)</div>
+                <div class="stat-label">
+                    @if (currentCulture == "bn-BD")
+                    {
+                        <span>পঠন</span>
+                    }
+                    else if (currentCulture == "fr-FR")
+                    {
+
+                        <span>Vues</span>
+                    }
+                    else if (currentCulture == "ar-SA")
+                    {
+
+                        <span>مشاهدات</span>
+                    }
+                    else if (currentCulture == "zh-CN")
+                    {
+
+                        <span>浏览</span>
+                    }
+                    else
+                    {
+
+                        <span>Views</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

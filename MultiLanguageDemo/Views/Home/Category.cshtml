@@ -1,0 +1,299 @@
+﻿@model List<MultiLanguageDemo.Models.ArticleDto>
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = ViewBag.CurrentCategory?.Name ?? "Category";
+}
+
+<div class="container mt-5">
+    <!-- Category Header -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/@ViewBag.CurrentCulture">@Localizer["Home"]</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@(ViewBag.CurrentCategory?.Name ?? "Category")</li>
+                </ol>
+            </nav>
+
+            <h1 class="fw-bold display-5 mb-3">
+                <i class="@ViewBag.CurrentCategory?.IconClass me-3 text-primary"></i>
+                @(ViewBag.CurrentCategory?.Name ?? "Category")
+            </h1>
+
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentCategory?.Description))
+            {
+                <p class="lead text-muted mb-4">@ViewBag.CurrentCategory?.Description</p>
+            }
+
+            <div class="d-flex align-items-center">
+                <span class="badge bg-primary rounded-pill p-2 me-3">
+                    <i class="fas fa-newspaper me-1"></i>@Model.Count @Localizer["articles"]
+                </span>
+                <span class="text-muted">
+                    <i class="fas fa-filter me-1"></i>@Localizer["Showing all articles in this category"]
+                </span>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-sort me-2"></i>@Localizer["Sort By"]
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-calendar me-2"></i>@Localizer["Newest First"]</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-fire me-2"></i>@Localizer["Most Popular"]</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-clock me-2"></i>@Localizer["Reading Time"]</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Articles Grid -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var article in Model)
+            {
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="article-card h-100">
+                        <div class="position-relative">
+                            <img src="@(article.ImageUrl ?? "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80")"
+                                 class="article-image"
+                                 alt="@article.Title">
+                            @if (article.IsFeatured)
+                            {
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="featured-badge">@Localizer["Featured"]</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="article-content d-flex flex-column">
+                            <div class="article-category">
+                                <i class="@article.CategoryIcon me-1"></i>@article.CategoryName
+                            </div>
+                            <h3 class="article-title">@article.Title</h3>
+                            <p class="text-muted flex-grow-1">
+                                @(article.Summary?.Length > 120 ? article.Summary.Substring(0, 120) + "..." : article.Summary)
+                            </p>
+                            <div class="article-meta">
+                                <span><i class="far fa-calendar me-1"></i>@article.PublishedDate.ToString("MMM dd")</span>
+                                <span class="reading-time">
+                                    <i class="far fa-clock me-1"></i>@article.ReadingTime @Localizer["min"]
+                                </span>
+                                <span><i class="far fa-eye me-1"></i>@article.ViewCount</span>
+                            </div>
+                            <a href="/@ViewBag.CurrentCulture/article/@article.Slug" class="btn btn-outline-primary rounded-pill mt-3">
+                                @Localizer["Read Article"] <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+    else
+    {
+        <!-- No Articles -->
+        <div class="text-center py-5 my-5">
+            <div class="mb-4">
+                <i class="@ViewBag.CurrentCategory?.IconClass fa-4x text-muted mb-4"></i>
+            </div>
+            <h3 class="fw-bold mb-3">@Localizer["No Articles Found"]</h3>
+            <p class="text-muted mb-4">
+                @Localizer["There are currently no articles in this category. Check back later for new content."]
+            </p>
+            <a href="/@ViewBag.CurrentCulture" class="btn btn-primary-custom">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Home"]
+            </a>
+        </div>
+    }
+
+    <!-- Other Categories -->
+    @if (ViewBag.Categories != null && ViewBag.Categories.Count > 1)
+    {
+        <div class="mt-5 pt-5 border-top">
+            <h3 class="fw-bold mb-4 text-center">@Localizer["Browse Other Categories"]</h3>
+            <div class="row">
+                @* @@model List<MultiLanguageDemo.Models.ArticleDto> *@
+                @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+                @{
+                    ViewData["Title"] = ViewBag.CurrentCategory?.Name ?? "Category";
+                }
+
+                <div class="container mt-5">
+                    <!-- Category Header -->
+                    <div class="row align-items-center mb-5">
+                        <div class="col-md-8">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/@ViewBag.CurrentCulture">@Localizer["Home"]</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">@(ViewBag.CurrentCategory?.Name ?? "Category")</li>
+                                </ol>
+                            </nav>
+
+                            <h1 class="fw-bold display-5 mb-3">
+                                <i class="@ViewBag.CurrentCategory?.IconClass me-3 text-primary"></i>
+                                @(ViewBag.CurrentCategory?.Name ?? "Category")
+                            </h1>
+
+                            @if (!string.IsNullOrEmpty(ViewBag.CurrentCategory?.Description))
+                            {
+                                <p class="lead text-muted mb-4">@ViewBag.CurrentCategory?.Description</p>
+                            }
+
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-primary rounded-pill p-2 me-3">
+                                    <i class="fas fa-newspaper me-1"></i>@Model.Count @Localizer["articles"]
+                                </span>
+                                <span class="text-muted">
+                                    <i class="fas fa-filter me-1"></i>@Localizer["Showing all articles in this category"]
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-sort me-2"></i>@Localizer["Sort By"]
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-calendar me-2"></i>@Localizer["Newest First"]</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-fire me-2"></i>@Localizer["Most Popular"]</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-clock me-2"></i>@Localizer["Reading Time"]</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Articles Grid -->
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="row">
+                            @foreach (var article in Model)
+                            {
+                                <div class="col-lg-4 col-md-6 mb-4">
+                                    <div class="article-card h-100">
+                                        <div class="position-relative">
+                                            <img src="@(article.ImageUrl ?? "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80")"
+                                                 class="article-image"
+                                                 alt="@article.Title">
+                                            @if (article.IsFeatured)
+                                            {
+                                                <div class="position-absolute top-0 end-0 m-3">
+                                                    <span class="featured-badge">@Localizer["Featured"]</span>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="article-content d-flex flex-column">
+                                            <div class="article-category">
+                                                <i class="@article.CategoryIcon me-1"></i>@article.CategoryName
+                                            </div>
+                                            <h3 class="article-title">@article.Title</h3>
+                                            <p class="text-muted flex-grow-1">
+                                                @(article.Summary?.Length > 120 ? article.Summary.Substring(0, 120) + "..." : article.Summary)
+                                            </p>
+                                            <div class="article-meta">
+                                                <span><i class="far fa-calendar me-1"></i>@article.PublishedDate.ToString("MMM dd")</span>
+                                                <span class="reading-time">
+                                                    <i class="far fa-clock me-1"></i>@article.ReadingTime @Localizer["min"]
+                                                </span>
+                                                <span><i class="far fa-eye me-1"></i>@article.ViewCount</span>
+                                            </div>
+                                            <a href="/@ViewBag.CurrentCulture/article/@article.Slug" class="btn btn-outline-primary rounded-pill mt-3">
+                                                @Localizer["Read Article"] <i class="fas fa-arrow-right ms-2"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav aria-label="Page navigation" class="mt-5">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                    else
+                    {
+                        <!-- No Articles -->
+                        <div class="text-center py-5 my-5">
+                            <div class="mb-4">
+                                <i class="@ViewBag.CurrentCategory?.IconClass fa-4x text-muted mb-4"></i>
+                            </div>
+                            <h3 class="fw-bold mb-3">@Localizer["No Articles Found"]</h3>
+                            <p class="text-muted mb-4">
+                                @Localizer["There are currently no articles in this category. Check back later for new content."]
+                            </p>
+                            <a href="/@ViewBag.CurrentCulture" class="btn btn-primary-custom">
+                                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Home"]
+                            </a>
+                        </div>
+                    }
+
+                    <!-- Other Categories -->
+                    @if (ViewBag.Categories != null && ViewBag.Categories.Count > 1)
+                    {
+                        <div class="mt-5 pt-5 border-top">
+                            <h3 class="fw-bold mb-4 text-center">@Localizer["Browse Other Categories"]</h3>
+                            <div class="row">
+                                @{
+                                    var categoriesList = ((IEnumerable<dynamic>)ViewBag.Categories).ToList();
+                                    var currentCategoryId = ViewBag.CurrentCategory?.Id;
+                                    var otherCategories = categoriesList.Where((Func<dynamic, bool>)(c => c.Id != currentCategoryId)).Take(4);
+                                    foreach (var category in otherCategories)
+                                    {
+                                        <div class="col-md-3 col-sm-6 mb-4">
+                                            <a href="/@ViewBag.CurrentCulture/category/@category.Id" class="text-decoration-none">
+                                                <div class="category-card text-center h-100">
+                                                    <div class="category-icon">
+                                                        <i class="@category.IconClass"></i>
+                                                    </div>
+                                                    <h5 class="fw-bold mb-2">@category.Name</h5>
+                                                    <p class="text-muted small">@(category.ArticleCount) @Localizer["articles"]</p>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

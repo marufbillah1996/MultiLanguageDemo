@@ -1,0 +1,77 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="fw-bold mb-4">@ViewData["Title"]</h1>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="fw-bold mb-3">
+                        <i class="fas fa-shield-alt text-primary me-2"></i>@Localizer["Our Commitment to Privacy"]
+                    </h4>
+                    <p class="text-muted">
+                        @Localizer["At GlobalNews, we take your privacy seriously. This policy outlines how we collect, use, and protect your personal information when you use our multilingual news platform."]
+                    </p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="fw-bold mb-3">@Localizer["Information We Collect"]</h4>
+                <div class="list-group mb-3">
+                    <div class="list-group-item border-0">
+                        <i class="fas fa-language text-primary me-2"></i>
+                        <strong>@Localizer["Language Preferences:"]</strong>
+                        @Localizer["We store your selected language preference to deliver content in your preferred language."]
+                    </div>
+                    <div class="list-group-item border-0">
+                        <i class="fas fa-cookie text-primary me-2"></i>
+                        <strong>@Localizer["Cookies:"]</strong>
+                        @Localizer["We use cookies to enhance your browsing experience and remember your preferences."]
+                    </div>
+                    <div class="list-group-item border-0">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        <strong>@Localizer["Analytics:"]</strong>
+                        @Localizer["We collect anonymous usage data to improve our services and content delivery."]
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="fw-bold mb-3">@Localizer["How We Use Your Information"]</h4>
+                <p class="text-muted mb-3">
+                    @Localizer["Your information helps us:"]
+                </p>
+                <ul class="text-muted">
+                    <li>@Localizer["Deliver news content in your preferred language"]</li>
+                    <li>@Localizer["Improve user experience across different languages"]</li>
+                    <li>@Localizer["Analyze reading patterns across cultures"]</li>
+                    <li>@Localizer["Customize content recommendations"]</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-info">
+                <h5 class="alert-heading">
+                    <i class="fas fa-globe-americas me-2"></i>@Localizer["Multilingual Privacy"]
+                </h5>
+                <p class="mb-0">
+                    @Localizer["Our privacy policy is available in all supported languages. Contact us if you need this policy in a specific language version."]
+                </p>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="/@ViewBag.CurrentCulture" class="btn btn-primary-custom">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Home"]
+                </a>
+                <a href="mailto:privacy@globalnews.com" class="btn btn-outline-primary ms-2">
+                    <i class="fas fa-envelope me-2"></i>@Localizer["Contact Privacy Team"]
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

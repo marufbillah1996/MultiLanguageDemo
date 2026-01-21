@@ -1,0 +1,531 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+<!DOCTYPE html>
+<html lang="@ViewBag.CurrentCulture" dir="@(ViewBag.IsRtl ? "rtl" : "ltr")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MultiLanguageDemo</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-bg: #f8f9fa;
+            --dark-bg: #212529;
+            --text-light: #f8f9fa;
+            --text-dark: #212529;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color) !important;
+        }
+
+        .language-switcher {
+            min-width: 120px;
+        }
+
+        .flag-icon {
+            width: 20px;
+            height: 15px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 8px;
+            background-size: cover;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+            height: 100%;
+        }
+
+            .category-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+        .category-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+            .article-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+        .article-image {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .article-content {
+            padding: 20px;
+        }
+
+        .article-category {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .article-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .article-meta {
+            color: #6c757d;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .featured-badge {
+            background: linear-gradient(to right, #ff9a00, #ff6a00);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .reading-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .footer {
+            background: var(--dark-bg);
+            color: var(--text-light);
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+
+        .rtl-support {
+            text-align: right;
+        }
+
+        .language-option {
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+            .language-option:hover {
+                background: #f8f9fa;
+            }
+
+            .language-option.active {
+                background: #e9ecef;
+                font-weight: 600;
+            }
+
+        .btn-primary-custom {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+            .btn-primary-custom:hover {
+                background: var(--secondary-color);
+                border-color: var(--secondary-color);
+                transform: translateY(-2px);
+            }
+
+        .search-box {
+            max-width: 400px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* FIXED: Media queries with @@ */
+        @@media (max-width: 1200px) {
+            .container {
+                max-width: 1140px;
+            }
+        }
+
+        @@media (max-width: 992px) {
+            .navbar-nav {
+                text-align: center;
+            }
+
+            .search-box {
+                margin: 15px auto;
+                max-width: 500px;
+            }
+
+            .hero-section {
+                padding: 60px 0;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 0;
+                border-radius: 0 0 15px 15px;
+            }
+
+                .hero-section h1 {
+                    font-size: 2rem;
+                }
+
+            .article-card, .category-card {
+                margin-bottom: 20px;
+            }
+
+            .navbar-nav {
+                text-align: center;
+                padding-top: 10px;
+            }
+
+            .language-switcher {
+                margin: 10px auto;
+            }
+
+            .footer .col-md-6 {
+                text-align: center !important;
+                margin-bottom: 20px;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .hero-section h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-section .lead {
+                font-size: 1rem;
+            }
+
+            .article-title {
+                font-size: 1.1rem;
+            }
+
+            .article-meta {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .btn-lg {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .footer {
+                padding: 30px 0 15px;
+            }
+        }
+
+        /* RTL specific adjustments */
+        @@media (max-width: 768px) {
+            [dir="rtl"] .navbar-nav {
+                text-align: right;
+            }
+
+            [dir="rtl"] .language-switcher .dropdown-menu {
+                text-align: right;
+            }
+        }
+    </style>
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+        <div class="container">
+            <a class="navbar-brand" href="/@ViewBag.CurrentCulture">
+                <i class="fas fa-globe-americas me-2"></i>GlobalNews
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/@ViewBag.CurrentCulture">@Localizer["Home"]</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            @Localizer["Categories"]
+                        </a>
+                        <ul class="dropdown-menu">
+                            @if (ViewBag.Categories != null)
+                            {
+                                foreach (var category in ViewBag.Categories)
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="/@ViewBag.CurrentCulture/category/@category.Id">
+                                            <i class="@category.IconClass me-2"></i>@category.Name
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">@Localizer["About"]</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">@Localizer["Contact"]</a>
+                    </li>
+                </ul>
+
+                <!-- Search Box -->
+                <form class="d-flex search-box me-3">
+                    <input class="form-control rounded-pill" type="search" placeholder="@Localizer["Search articles..."]">
+                    <button class="btn btn-primary-custom rounded-pill ms-2" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+
+                <!-- Language Switcher -->
+                <div class="dropdown language-switcher">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        @{
+                            var currentLang = ViewBag.CurrentCulture;
+                            var langName = "English";
+                            if (currentLang == "bn-BD") langName = "বাংলা";
+                            else if (currentLang == "fr-FR") langName = "Français";
+                            else if (currentLang == "ar-SA") langName = "العربية";
+                            else if (currentLang == "zh-CN") langName = "中文";
+                        }
+                        <span class="flag-icon" style="background-image: url('https://flagcdn.com/20x15/@(currentLang.Split('-')[1].ToLower()).png')"></span>
+                        @langName
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <form method="post" asp-controller="Home" asp-action="SetLanguage">
+                                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                <button type="submit" name="culture" value="en-US" class="dropdown-item language-option @(currentLang == "en-US" ? "active" : "")">
+                                    <span class="flag-icon" style="background-image: url('https://flagcdn.com/20x15/us.png')"></span>
+                                    English
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form method="post" asp-controller="Home" asp-action="SetLanguage">
+                                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                <button type="submit" name="culture" value="bn-BD" class="dropdown-item language-option @(currentLang == "bn-BD" ? "active" : "")">
+                                    <span class="flag-icon" style="background-image: url('https://flagcdn.com/20x15/bd.png')"></span>
+                                    বাংলা
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form method="post" asp-controller="Home" asp-action="SetLanguage">
+                                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                <button type="submit" name="culture" value="fr-FR" class="dropdown-item language-option @(currentLang == "fr-FR" ? "active" : "")">
+                                    <span class="flag-icon" style="background-image: url('https://flagcdn.com/20x15/fr.png')"></span>
+                                    Français
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form method="post" asp-controller="Home" asp-action="SetLanguage">
+                                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                <button type="submit" name="culture" value="ar-SA" class="dropdown-item language-option @(currentLang == "ar-SA" ? "active" : "")">
+                                    <span class="flag-icon" style="background-image: url('https://flagcdn.com/20x15/sa.png')"></span>
+                                    العربية
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            <form method="post" asp-controller="Home" asp-action="SetLanguage">
+                                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                <button type="submit" name="culture" value="zh-CN" class="dropdown-item language-option @(currentLang == "zh-CN" ? "active" : "")">
+                                    <span class="flag-icon" style="background-image: url('https://flagcdn.com/20x15/cn.png')"></span>
+                                    中文
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main role="main" class="pb-5">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="mb-3"><i class="fas fa-globe-americas me-2"></i>GlobalNews</h5>
+                    <p class="text-light">Your gateway to world news in multiple languages. Stay informed with our curated content from around the globe.</p>
+                    <div class="social-icons mt-3">
+                        <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="mb-3">@Localizer["Quick Links"]</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/@ViewBag.CurrentCulture" class="text-light text-decoration-none">@Localizer["Home"]</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">@Localizer["About Us"]</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">@Localizer["Contact"]</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">@Localizer["Privacy Policy"]</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5 class="mb-3">@Localizer["Categories"]</h5>
+                    <ul class="list-unstyled">
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var category in ViewBag.Categories.Take(5))
+                            {
+                                <li class="mb-2">
+                                    <a href="/@ViewBag.CurrentCulture/category/@category.Id" class="text-light text-decoration-none">
+                                        <i class="@category.IconClass me-2"></i>@category.Name
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5 class="mb-3">@Localizer["Subscribe"]</h5>
+                    <p class="text-light">@Localizer["Get the latest news delivered to your inbox."]</p>
+                    <form class="mt-3">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="@Localizer["Your email"]">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <hr class="bg-light">
+
+            <div class="row mt-4">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 GlobalNews. @Localizer["All rights reserved."]</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-0">
+                        <span class="me-3">@Localizer["Available in"]:</span>
+                        <span class="badge bg-light text-dark me-2">English</span>
+                        <span class="badge bg-light text-dark me-2">বাংলা</span>
+                        <span class="badge bg-light text-dark me-2">Français</span>
+                        <span class="badge bg-light text-dark me-2">العربية</span>
+                        <span class="badge bg-light text-dark">中文</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Custom Scripts -->
+    <script>
+        // Update flag icons based on language selection
+        $(document).ready(function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Language switcher active state
+            $('.language-option').on('click', function() {
+                $('.language-option').removeClass('active');
+                $(this).addClass('active');
+            });
+
+            // Auto-hide dropdowns on mobile after selection
+            if ($(window).width() < 992) {
+                $('.dropdown-item').on('click', function() {
+                    $('.dropdown-toggle').dropdown('hide');
+                });
+            }
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

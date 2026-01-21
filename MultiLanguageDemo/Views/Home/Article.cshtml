@@ -1,0 +1,314 @@
+﻿@model MultiLanguageDemo.Models.ArticleDto
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Model?.Title ?? "Article";
+}
+
+<div class="container mt-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/@ViewBag.CurrentCulture">@Localizer["Home"]</a></li>
+            <li class="breadcrumb-item"><a href="/@ViewBag.CurrentCulture/category/">@Localizer["Categories"]</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model?.CategoryName</li>
+        </ol>
+    </nav>
+
+    @if (Model != null)
+    {
+        <div class="row">
+            <!-- Article Content -->
+            <div class="col-lg-8">
+                <!-- Article Header -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary rounded-pill me-2">@Model.CategoryName</span>
+                        @if (Model.IsFeatured)
+                        {
+                            <span class="badge bg-warning rounded-pill me-2">@Localizer["Featured"]</span>
+                        }
+                        <span class="text-muted me-3"><i class="far fa-calendar me-1"></i>@Model.PublishedDate.ToString("MMMM dd, yyyy")</span>
+                        <span class="text-muted"><i class="far fa-clock me-1"></i>@Model.ReadingTime @Localizer["min read"]</span>
+                    </div>
+
+                    <h1 class="fw-bold mb-3">@Model.Title</h1>
+
+                    @if (!string.IsNullOrEmpty(Model.Subtitle))
+                    {
+                        <h3 class="text-muted mb-4">@Model.Subtitle</h3>
+                    }
+
+                    <!-- Author Info -->
+                    <div class="d-flex align-items-center mb-4 p-3 bg-light rounded-3">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 fw-bold">@Model.AuthorName</h6>
+                            <p class="text-muted small mb-0">@Localizer["Published on"] @Model.PublishedDate.ToString("MMMM dd, yyyy")</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-secondary">
+                                <i class="far fa-eye me-1"></i>@Model.ViewCount @Localizer["views"]
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Article Image -->
+                <div class="mb-5">
+                    <img src="@(Model.ImageUrl ?? "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80")"
+                         class="img-fluid rounded-3 shadow"
+                         alt="@Model.Title"
+                         style="max-height: 500px; width: 100%; object-fit: cover;">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <p class="text-muted text-center mt-2 small">@Localizer["Image credit: Unsplash"]</p>
+                    }
+                </div>
+
+                <!-- Article Content -->
+                <div class="article-content mb-5" style="font-size: 1.1rem; line-height: 1.8;">
+                    @Html.Raw(Model.Content)
+                </div>
+
+                <!-- Tags -->
+                @if (!string.IsNullOrEmpty(Model.Tags))
+                {
+                    <div class="mb-5">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-tags me-2"></i>@Localizer["Tags"]
+                        </h5>
+                        <div>
+                            @{
+                                var tags = Model.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var tag in tags)
+                                {
+                                    <span class="badge bg-light text-dark border me-2 mb-2 p-2">
+                                        <i class="fas fa-hashtag me-1"></i>@tag.Trim()
+                                    </span>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Share Buttons -->
+                <div class="mb-5 p-4 bg-light rounded-3">
+                    <h5 class="fw-bold mb-3">@Localizer["Share this article"]</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="#" class="btn btn-primary">
+                            <i class="fab fa-facebook-f me-2"></i>Facebook
+                        </a>
+                        <a href="#" class="btn btn-info text-white">
+                            <i class="fab fa-twitter me-2"></i>Twitter
+                        </a>
+                        <a href="#" class="btn btn-danger">
+                            <i class="fab fa-pinterest-p me-2"></i>Pinterest
+                        </a>
+                        <a href="#" class="btn btn-success">
+                            <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                        </a>
+                        <a href="#" class="btn btn-dark">
+                            <i class="fas fa-link me-2"></i>@Localizer["Copy Link"]
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Author Bio (Extended) -->
+                <div class="mb-5 p-4 bg-light rounded-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center mb-3 mb-md-0">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto"
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-user text-white fa-3x"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <h4 class="fw-bold mb-2">About @Model.AuthorName</h4>
+                            <p class="text-muted mb-3">
+                                @Localizer["Experienced writer and journalist with a passion for global news and multilingual content delivery. Specializes in technology, business, and cultural analysis."]
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-secondary">@Localizer["Journalist"]</span>
+                                <span class="badge bg-secondary">@Localizer["Writer"]</span>
+                                <span class="badge bg-secondary">@Localizer["Multilingual"]</span>
+                                <span class="badge bg-secondary">5+ @Localizer["Years Experience"]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Related Articles -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-newspaper me-2"></i>@Localizer["Related Articles"]
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @{
+                            // In a real app, you would fetch related articles from service
+                            var relatedArticles = new List<dynamic>
+                                        {
+                                        new { Title = "The Future of AI in 2024", Category = "Technology", ReadTime = 5 },
+                                        new { Title = "Sustainable Business Practices", Category = "Business", ReadTime = 4 },
+                                        new { Title = "Mental Health in Digital Age", Category = "Health", ReadTime = 6 }
+                                        };
+
+                            foreach (var article in relatedArticles)
+                            {
+                                <div class="mb-3 pb-3 border-bottom">
+                                    <h6 class="fw-bold mb-1">@article.Title</h6>
+                                    <div class="small text-muted">
+                                        <span class="me-3">@article.Category</span>
+                                        <span><i class="far fa-clock me-1"></i>@article.ReadTime @Localizer["min"]</span>
+                                    </div>
+                                    <a href="#" class="small text-decoration-none">@Localizer["Read"] →</a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Newsletter Signup -->
+                <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #4361ee, #3a0ca3);">
+                    <div class="card-body text-white text-center">
+                        <i class="fas fa-envelope fa-3x mb-3"></i>
+                        <h5 class="fw-bold mb-3">@Localizer["Newsletter"]</h5>
+                        <p class="mb-4">@Localizer["Get weekly updates on the latest articles"]</p>
+                        <div class="mb-3">
+                            <input type="email" class="form-control rounded-pill" placeholder="@Localizer["Your email"]">
+                        </div>
+                        <button class="btn btn-light rounded-pill w-100">
+                            @Localizer["Subscribe Now"] <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Popular Categories -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2 text-primary"></i>@Localizer["Popular Categories"]
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (ViewBag.Categories != null)
+                        {
+                            var popularCategories = ViewBag.Categories.Take(5);
+                            foreach (var category in popularCategories)
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <i class="@category.IconClass me-2 text-primary"></i>
+                                        <a href="/@ViewBag.CurrentCulture/category/@category.Id" class="text-decoration-none">
+                                            @category.Name
+                                        </a>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">@category.ArticleCount</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Article Not Found -->
+        <div class="text-center py-5 my-5">
+            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-4"></i>
+            <h2 class="fw-bold mb-3">@Localizer["Article Not Found"]</h2>
+            <p class="text-muted mb-4">@Localizer["The article you are looking for doesn't exist or has been removed."]</p>
+            <a href="/@ViewBag.CurrentCulture" class="btn btn-primary-custom btn-lg">
+                <i class="fas fa-home me-2"></i>@Localizer["Back to Home"]
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Comments Section (Optional) -->
+@if (Model != null)
+{
+    <div class="container mb-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-comments me-2 text-primary"></i>@Localizer["Comments"] (3)
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Comment Form -->
+                <div class="mb-4 p-3 bg-light rounded-3">
+                    <h6 class="fw-bold mb-3">@Localizer["Leave a Comment"]</h6>
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <input type="text" class="form-control" placeholder="@Localizer["Your Name"]" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="email" class="form-control" placeholder="@Localizer["Your Email"]" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control" rows="3" placeholder="@Localizer["Your Comment"]" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fas fa-paper-plane me-2"></i>@Localizer["Post Comment"]
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Comments List -->
+                <div class="mt-4">
+                    <div class="d-flex mb-4">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="fw-bold mb-1">John Smith</h6>
+                                <small class="text-muted">2 days ago</small>
+                            </div>
+                            <p class="mb-1">@Localizer["Great article! Really enjoyed reading about this topic. Looking forward to more content like this."]</p>
+                            <a href="#" class="small text-decoration-none">
+                                <i class="fas fa-reply me-1"></i>@Localizer["Reply"]
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="d-flex ms-4 mb-4">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                                 style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="fw-bold mb-1">Maria Garcia</h6>
+                                <small class="text-muted">1 day ago</small>
+                            </div>
+                            <p class="mb-1">@Localizer["Thanks for sharing this insightful piece. The multilingual approach is particularly helpful for our global team."]</p>
+                            <a href="#" class="small text-decoration-none">
+                                <i class="fas fa-reply me-1"></i>@Localizer["Reply"]
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

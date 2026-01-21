@@ -1,0 +1,37 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+<div class="language-switcher">
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            @{
+                var currentLang = ViewBag.CurrentCulture;
+                var langName = "English";
+                if (currentLang == "bn-BD") langName = "বাংলা";
+                else if (currentLang == "fr-FR") langName = "Français";
+                else if (currentLang == "ar-SA") langName = "العربية";
+                else if (currentLang == "zh-CN") langName = "中文";
+            }
+            <span class="flag-icon me-2"
+                  style="background-image: url('https://flagcdn.com/20x15/@(currentLang.Split('-')[1].ToLower()).png')">
+            </span>
+            @langName
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            @foreach (var culture in MultiLanguageDemo.Helpers.CultureHelper.GetSupportedCultureList())
+            {
+                <li>
+                    <form method="post" asp-controller="Home" asp-action="SetLanguage">
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                        <button type="submit" name="culture" value="@culture.Code"
+                                class="dropdown-item language-option @(currentLang == culture.Code ? "active" : "")">
+                            <span class="flag-icon me-2"
+                                  style="background-image: url('https://flagcdn.com/20x15/@(culture.FlagIcon).png')">
+                            </span>
+                            @culture.Name
+                        </button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
