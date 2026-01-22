@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using MultiLanguageDemo.Data;
 using MultiLanguageDemo.Services;
@@ -28,7 +29,7 @@ builder.Services.AddScoped<IArticleService, ArticleService>();
 
 // Add MVC with localization
 builder.Services.AddControllersWithViews()
-    .AddViewLocalization()
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
     .AddDataAnnotationsLocalization();
 
 // Configure request localization

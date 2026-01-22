@@ -1,6 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Localization
 @using MultiLanguageDemo.Helpers
 @using System.Globalization
+@* @using Microsoft.AspNetCore.Mvc.Localization *@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<MultiLanguageDemo.Resources.SharedResource> Localizer
+@* @inject IViewLocalizer Localizer *@
 @{
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
     var currentCulture = requestCulture?.RequestCulture.Culture.Name ?? "en-US";
@@ -293,12 +297,24 @@
     </style>
 </head>
 <body>
+   @*  <div style="background: red; color: white; padding: 10px;">
+        TEST: @ResourceHelper.GetString("ReadMore")| @System.Globalization.CultureInfo.CurrentCulture.Name
+    </div> *@
+
+@*     <a class="nav-link" href="/@currentCulture/">
+        <i class="bi bi-house-door-fill"></i> @ResourceHelper.GetString("Home")
+    </a> *@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
-            <a class="navbar-brand" href="/@currentCulture/">
+          @*   <a class="navbar-brand" href="/@currentCulture/">
                 <i class="bi bi-globe2"></i>
                 <span>MultiBlog</span>
+            </a> *@
+            <a class="navbar-brand" href="/@currentCulture/">
+                <i class="bi bi-globe2"></i>
+                <span> @ResourceHelper.GetString("AppTitle")</span>
+                @* <span>@Localizer["AppTitle"]</span> *@
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -307,7 +323,7 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
+                   @*  <li class="nav-item">
                         <a class="nav-link" href="/@currentCulture/">
                             <i class="bi bi-house-door-fill"></i> Home
                         </a>
@@ -316,6 +332,16 @@
                         <a class="nav-link" href="/@currentCulture/Home/Privacy">
                             <i class="bi bi-shield-check"></i> Privacy
                         </a>
+                    </li> *@
+                    <li class="nav-item">
+                        <a class="nav-link" href="/@currentCulture/">
+                            <i class="bi bi-house-door-fill"></i> @ResourceHelper.GetString("Home")
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/@currentCulture/Home/Privacy">
+                            <i class="bi bi-shield-check"></i> @ResourceHelper.GetString("Privacy")
+                        </a>
                     </li>
                 </ul>
 
@@ -323,7 +349,8 @@
                 <div class="language-switcher ms-3">
                     <button class="language-btn" id="languageBtn" type="button">
                         <span class="language-flag">@(currentCultureInfo?.FlagIcon ?? "🌐")</span>
-                        <span>@(currentCultureInfo?.NativeName ?? "Language")</span>
+                        @* <span>@(currentCultureInfo?.NativeName ?? "Language")</span> *@
+                        <span>@(string.IsNullOrEmpty(currentCultureInfo?.NativeName) ? @ResourceHelper.GetString("Language") : currentCultureInfo.NativeName)</span>
                         <i class="bi bi-chevron-down"></i>
                     </button>
 
@@ -361,12 +388,21 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <h5 class="footer-title">
+                   @*  <h5 class="footer-title">
                         <i class="bi bi-globe2"></i> MultiBlog
+                    </h5> *@
+                    <h5 class="footer-title">
+                        <i class="bi bi-globe2"></i>  @ResourceHelper.GetString("AppTitle")
                     </h5>
-                    <p style="opacity: 0.8; line-height: 1.8;">
+                    @* <p style="opacity: 0.8; line-height: 1.8;">
                         Your global source for news and articles in multiple languages.
                         Breaking barriers, connecting cultures.
+                    </p> *@
+                    <p style="opacity: 0.8; line-height: 1.8;">
+                        @* @Localizer["YourGlobalSource"]. *@
+                        @ResourceHelper.GetString("YourGlobalSource")
+                        @* @Localizer["BreakingBarriers"]. *@
+                        @ResourceHelper.GetString("BreakingBarriers")
                     </p>
                     <div class="social-icons mt-4">
                         <a href="#"><i class="bi bi-facebook"></i></a>
@@ -377,7 +413,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <h6 style="font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem;">Quick Links</h6>
+                    @* <h6 style="font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem;">Quick Links</h6>
                     <div class="footer-links">
                         <a href="/@currentCulture/">
                             <i class="bi bi-chevron-right"></i> Home
@@ -391,10 +427,26 @@
                         <a href="#">
                             <i class="bi bi-chevron-right"></i> Contact
                         </a>
+                    </div> *@
+                    <h6 style="font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem;"> @ResourceHelper.GetString("QuickLinks")</h6>
+                    <div class="footer-links">
+                        <a href="/@currentCulture/">
+                            <i class="bi bi-chevron-right"></i> @ResourceHelper.GetString("Home")
+                        </a>
+                        <a href="/@currentCulture/Home/Privacy">
+                            <i class="bi bi-chevron-right"></i>  @ResourceHelper.GetString("PrivacyPolicy")
+                        </a>
+                        <a href="#">
+                            <i class="bi bi-chevron-right"></i>  @ResourceHelper.GetString("AboutUs")
+                        </a>
+                        <a href="#">
+                            <i class="bi bi-chevron-right"></i>  @ResourceHelper.GetString("Contact")
+                        </a>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
-                    <h6 style="font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem;">Available Languages</h6>
+                    @* <h6 style="font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem;">Available Languages</h6> *@
+                    <h6 style="font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem;"> @ResourceHelper.GetString("AvailableLanguages")</h6>
                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
                         @foreach (var lang in supportedCultures)
                         {
@@ -407,9 +459,13 @@
             </div>
             <hr style="opacity: 0.2; margin: 2rem 0;">
             <div class="text-center" style="opacity: 0.8;">
-                <p class="mb-0">
+                @* <p class="mb-0">
                     &copy; @DateTime.Now.Year MultiBlog. All rights reserved. |
                     Current Language: <strong>@(currentCultureInfo?.NativeName ?? currentCulture)</strong>
+                </p> *@
+                <p class="mb-0">
+                    &copy; @DateTime.Now.Year  @ResourceHelper.GetString("AppTitle").  @ResourceHelper.GetString("AllRightsReserved"). |
+                    @ResourceHelper.GetString("CurrentLanguage"): <strong>@(currentCultureInfo?.NativeName ?? currentCulture)</strong>
                 </p>
             </div>
         </div>
