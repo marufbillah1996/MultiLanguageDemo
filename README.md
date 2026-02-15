@@ -80,17 +80,23 @@ dotnet run
 
 ### Docker Deployment
 
-1. Build and run with Docker Compose:
+1. Create environment file from template:
+```bash
+cp .env.example .env
+# Edit .env and set a strong DB_PASSWORD
+```
+
+2. Build and run with Docker Compose:
 ```bash
 docker-compose up -d
 ```
 
-2. Apply migrations to the containerized database:
+3. Apply migrations to the containerized database:
 ```bash
 docker-compose exec web dotnet ef database update
 ```
 
-3. Access the application:
+4. Access the application:
    - Web App: http://localhost:5000
    - API Docs: http://localhost:5000/api-docs
    - Health Check: http://localhost:5000/health

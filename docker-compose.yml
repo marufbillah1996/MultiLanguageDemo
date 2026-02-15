@@ -10,7 +10,7 @@ services:
       - "5001:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=MultiLanguageDemoDB;User Id=sa;Password=YourStrong@Passw0rd;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=MultiLanguageDemoDB;User Id=sa;Password=${DB_PASSWORD:-YourStrong@Passw0rd};Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=true
     depends_on:
       - sqlserver
     networks:
@@ -21,7 +21,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Passw0rd
+      - SA_PASSWORD=${DB_PASSWORD:-YourStrong@Passw0rd}
       - MSSQL_PID=Developer
     ports:
       - "1433:1433"

@@ -10,13 +10,19 @@ namespace MultiLanguageDemo.Services
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _cache;
         private readonly ILogger<ArticleService> _logger;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private const int CacheExpirationMinutes = 15;
 
-        public ArticleService(ApplicationDbContext context, IMemoryCache cache, ILogger<ArticleService> logger)
+        public ArticleService(
+            ApplicationDbContext context, 
+            IMemoryCache cache, 
+            ILogger<ArticleService> logger,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _context = context;
             _cache = cache;
             _logger = logger;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         public async Task<List<ArticleDto>> GetAllArticlesAsync(string culture)
@@ -59,16 +65,21 @@ namespace MultiLanguageDemo.Services
 
             if (article == null) return null;
 
-            // Update view count asynchronously without waiting
+            var articleId = article.ArticleId;
+            
+            // Update view count asynchronously in a background task with its own scope
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    var articleToUpdate = await _context.Articles.FindAsync(article.ArticleId);
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var scopedContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    
+                    var articleToUpdate = await scopedContext.Articles.FindAsync(articleId);
                     if (articleToUpdate != null)
                     {
                         articleToUpdate.ViewCount++;
-                        await _context.SaveChangesAsync();
+                        await scopedContext.SaveChangesAsync();
                         
                         // Invalidate cache for this article
                         _cache.Remove($"articles_all_{culture}");
