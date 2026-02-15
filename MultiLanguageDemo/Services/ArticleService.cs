@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MultiLanguageDemo.Data;
 using MultiLanguageDemo.Models;
 
@@ -7,74 +8,160 @@ namespace MultiLanguageDemo.Services
     public class ArticleService : IArticleService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<ArticleService> _logger;
+        private const int CacheExpirationMinutes = 15;
 
-        public ArticleService(ApplicationDbContext context)
+        public ArticleService(ApplicationDbContext context, IMemoryCache cache, ILogger<ArticleService> logger)
         {
             _context = context;
+            _cache = cache;
+            _logger = logger;
         }
 
         public async Task<List<ArticleDto>> GetAllArticlesAsync(string culture)
         {
+            var cacheKey = $"articles_all_{culture}";
+            
+            if (_cache.TryGetValue(cacheKey, out List<ArticleDto>? cachedArticles) && cachedArticles != null)
+            {
+                _logger.LogDebug("Returning cached articles for culture: {Culture}", culture);
+                return cachedArticles;
+            }
+
             var articles = await _context.Articles
+                .AsNoTracking()
                 .Where(a => a.IsActive)
-                .Include(a => a.Translations).ThenInclude(t => t.Language)
-                .Include(a => a.Category).ThenInclude(c => c!.Translations).ThenInclude(t => t.Language)
+                .Include(a => a.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
+                .Include(a => a.Category).ThenInclude(c => c!.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
                 .OrderByDescending(a => a.PublishedDate)
                 .ToListAsync();
 
-            return articles.Select(a => MapToDto(a, culture)).ToList();
+            var result = articles.Select(a => MapToDto(a, culture)).ToList();
+            
+            _cache.Set(cacheKey, result, TimeSpan.FromMinutes(CacheExpirationMinutes));
+            _logger.LogDebug("Cached {Count} articles for culture: {Culture}", result.Count, culture);
+            
+            return result;
         }
 
         public async Task<ArticleDto?> GetArticleBySlugAsync(string slug, string culture)
         {
             var article = await _context.Articles
                 .Where(a => a.Slug == slug && a.IsActive)
-                .Include(a => a.Translations).ThenInclude(t => t.Language)
-                .Include(a => a.Category).ThenInclude(c => c!.Translations).ThenInclude(t => t.Language)
+                .Include(a => a.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
+                .Include(a => a.Category).ThenInclude(c => c!.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
                 .FirstOrDefaultAsync();
 
             if (article == null) return null;
 
-            article.ViewCount++;
-            await _context.SaveChangesAsync();
+            // Update view count asynchronously without waiting
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var articleToUpdate = await _context.Articles.FindAsync(article.ArticleId);
+                    if (articleToUpdate != null)
+                    {
+                        articleToUpdate.ViewCount++;
+                        await _context.SaveChangesAsync();
+                        
+                        // Invalidate cache for this article
+                        _cache.Remove($"articles_all_{culture}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to update view count for article: {Slug}", slug);
+                }
+            });
 
             return MapToDto(article, culture);
         }
 
         public async Task<List<ArticleDto>> GetFeaturedArticlesAsync(string culture, int count = 3)
         {
+            var cacheKey = $"articles_featured_{culture}_{count}";
+            
+            if (_cache.TryGetValue(cacheKey, out List<ArticleDto>? cachedArticles) && cachedArticles != null)
+            {
+                _logger.LogDebug("Returning cached featured articles for culture: {Culture}", culture);
+                return cachedArticles;
+            }
+
             var articles = await _context.Articles
+                .AsNoTracking()
                 .Where(a => a.IsActive && a.IsFeatured)
-                .Include(a => a.Translations).ThenInclude(t => t.Language)
-                .Include(a => a.Category).ThenInclude(c => c!.Translations).ThenInclude(t => t.Language)
+                .Include(a => a.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
+                .Include(a => a.Category).ThenInclude(c => c!.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
                 .OrderByDescending(a => a.PublishedDate)
                 .Take(count)
                 .ToListAsync();
 
-            return articles.Select(a => MapToDto(a, culture)).ToList();
+            var result = articles.Select(a => MapToDto(a, culture)).ToList();
+            
+            _cache.Set(cacheKey, result, TimeSpan.FromMinutes(CacheExpirationMinutes));
+            
+            return result;
         }
 
         public async Task<List<ArticleDto>> GetArticlesByCategoryAsync(int categoryId, string culture)
         {
+            var cacheKey = $"articles_category_{categoryId}_{culture}";
+            
+            if (_cache.TryGetValue(cacheKey, out List<ArticleDto>? cachedArticles) && cachedArticles != null)
+            {
+                _logger.LogDebug("Returning cached articles for category: {CategoryId}, culture: {Culture}", categoryId, culture);
+                return cachedArticles;
+            }
+
             var articles = await _context.Articles
+                .AsNoTracking()
                 .Where(a => a.CategoryId == categoryId && a.IsActive)
-                .Include(a => a.Translations).ThenInclude(t => t.Language)
-                .Include(a => a.Category).ThenInclude(c => c!.Translations).ThenInclude(t => t.Language)
+                .Include(a => a.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
+                .Include(a => a.Category).ThenInclude(c => c!.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
                 .OrderByDescending(a => a.PublishedDate)
                 .ToListAsync();
 
-            return articles.Select(a => MapToDto(a, culture)).ToList();
+            var result = articles.Select(a => MapToDto(a, culture)).ToList();
+            
+            _cache.Set(cacheKey, result, TimeSpan.FromMinutes(CacheExpirationMinutes));
+            
+            return result;
         }
 
         public async Task<List<CategoryDto>> GetAllCategoriesAsync(string culture)
         {
+            var cacheKey = $"categories_all_{culture}";
+            
+            if (_cache.TryGetValue(cacheKey, out List<CategoryDto>? cachedCategories) && cachedCategories != null)
+            {
+                _logger.LogDebug("Returning cached categories for culture: {Culture}", culture);
+                return cachedCategories;
+            }
+
             var categories = await _context.Categories
+                .AsNoTracking()
                 .Where(c => c.IsActive)
-                .Include(c => c.Translations).ThenInclude(t => t.Language)
-                .Include(c => c.Articles)
+                .Include(c => c.Translations.Where(t => t.Language!.Code == culture || t.Language!.IsDefault))
+                    .ThenInclude(t => t.Language)
+                .Include(c => c.Articles.Where(a => a.IsActive))
                 .ToListAsync();
 
-            return categories.Select(c => MapCategoryToDto(c, culture)).ToList();
+            var result = categories.Select(c => MapCategoryToDto(c, culture)).ToList();
+            
+            // Categories change less frequently, cache for longer
+            _cache.Set(cacheKey, result, TimeSpan.FromMinutes(30));
+            
+            return result;
         }
 
         private ArticleDto MapToDto(Article article, string culture)

@@ -20,10 +20,34 @@ namespace MultiLanguageDemo.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Language indexes
             modelBuilder.Entity<Language>()
                 .HasIndex(l => l.Code)
                 .IsUnique();
 
+            // Article indexes for performance
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.Slug)
+                .IsUnique();
+
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.IsActive);
+
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => new { a.CategoryId, a.IsActive });
+
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => new { a.IsFeatured, a.IsActive, a.PublishedDate });
+
+            // Category indexes
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.Code)
+                .IsUnique();
+
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.IsActive);
+
+            // CategoryTranslation relationships and indexes
             modelBuilder.Entity<CategoryTranslation>()
                 .HasOne(ct => ct.Category)
                 .WithMany(c => c.Translations)
@@ -34,6 +58,7 @@ namespace MultiLanguageDemo.Data
                 .HasIndex(ct => new { ct.CategoryId, ct.LanguageId })
                 .IsUnique();
 
+            // ArticleTranslation relationships and indexes
             modelBuilder.Entity<ArticleTranslation>()
                 .HasOne(at => at.Article)
                 .WithMany(a => a.Translations)

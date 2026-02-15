@@ -14,6 +14,7 @@ namespace MultiLanguageDemo.Controllers
             _logger = logger;
         }
 
+        [ResponseCache(Duration = 300, VaryByQueryKeys = new[] { "culture" }, Location = ResponseCacheLocation.Any)]
         public async Task<IActionResult> Index()
         {
             var articles = await _articleService.GetAllArticlesAsync(CurrentCulture);
@@ -43,6 +44,7 @@ namespace MultiLanguageDemo.Controllers
         }
 
         [Route("{culture}/category/{id}")]
+        [ResponseCache(Duration = 300, VaryByQueryKeys = new[] { "culture" }, Location = ResponseCacheLocation.Any)]
         public async Task<IActionResult> Category(int id)
         {
             var articles = await _articleService.GetArticlesByCategoryAsync(id, CurrentCulture);

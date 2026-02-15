@@ -38,6 +38,7 @@ namespace MultiLanguageDemo.Controllers.Api
         }
 
         [HttpGet]
+        [ResponseCache(Duration = 300, VaryByQueryKeys = new[] { "culture" })]
         public async Task<IActionResult> GetArticles()
         {
             var culture = GetCultureFromRequest();
@@ -54,6 +55,7 @@ namespace MultiLanguageDemo.Controllers.Api
         }
 
         [HttpGet("{slug}")]
+        [ResponseCache(Duration = 600, VaryByQueryKeys = new[] { "culture" })]
         public async Task<IActionResult> GetArticle(string slug)
         {
             var culture = GetCultureFromRequest();
@@ -81,6 +83,7 @@ namespace MultiLanguageDemo.Controllers.Api
         }
 
         [HttpGet("featured")]
+        [ResponseCache(Duration = 600, VaryByQueryKeys = new[] { "culture", "count" })]
         public async Task<IActionResult> GetFeaturedArticles([FromQuery] int count = 3)
         {
             var culture = GetCultureFromRequest();
@@ -97,6 +100,7 @@ namespace MultiLanguageDemo.Controllers.Api
         }
 
         [HttpGet("categories")]
+        [ResponseCache(Duration = 1800, VaryByQueryKeys = new[] { "culture" })]
         public async Task<IActionResult> GetCategories()
         {
             var culture = GetCultureFromRequest();
